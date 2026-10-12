@@ -17,4 +17,15 @@ image.height = 96;
 const message = document.createElement("p");
 message.textContent = "Your project starts here.";
 
-app.append(heading, image, message);
+let clickCount = 0;
+
+const counter = document.createElement("h1");
+counter.textContent = "Clicks: 0";
+
+app.append(heading, image, message, counter);
+
+image.addEventListener("click", function () {
+  console.log("Clicked!")
+  clickCount++;
+  counter.textContent = "Clicks: " + clickCount;
+});
