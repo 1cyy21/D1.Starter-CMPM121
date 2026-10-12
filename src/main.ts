@@ -2,6 +2,7 @@
 // even this tiny example demonstrates a separately deployed asset.
 // @deno-types="./asset-url.d.ts"
 import tileUrl from "./assets/tile.svg?no-inline";
+import "./style.css";
 
 const app = document.querySelector<HTMLElement>("#app")!;
 
@@ -17,7 +18,9 @@ image.height = 96;
 const message = document.createElement("p");
 message.textContent = "Your project starts here.";
 
-let clickCount = 0;
+let clickCount: number = 0;
+let passiveBonuses: number = 1;
+// let upgrades = [];
 
 const counter = document.createElement("h1");
 counter.textContent = "Clicks: 0";
@@ -25,7 +28,17 @@ counter.textContent = "Clicks: 0";
 app.append(heading, image, message, counter);
 
 image.addEventListener("click", function () {
-  console.log("Clicked!")
-  clickCount++;
-  counter.textContent = "Clicks: " + clickCount;
+  console.log("Clicked!");
+  addClicks(1);
 });
+
+function addClicks(amount: number) {
+  clickCount += amount;
+  updateCounter();
+}
+
+function updateCounter() {
+  counter.textContent = "Clicks: " + clickCount;
+}
+
+setInterval(() => addClicks(passiveBonuses), 1000);
