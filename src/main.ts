@@ -19,7 +19,7 @@ const message = document.createElement("p");
 message.textContent = "Your project starts here.";
 
 let clickCount: number = 0;
-let passiveBonuses: number = 1;
+const passiveBonuses: number = 1;
 // let upgrades = [];
 
 const counter = document.createElement("h1");
