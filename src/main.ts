@@ -25,6 +25,9 @@ const passiveBonuses: number = 1;
 const counter = document.createElement("h1");
 counter.textContent = "Clicks: 0";
 
+const upgrade_1 = document.createElement("button");
+upgrade_1.textContent = "Purchase Upgrade";
+
 app.append(heading, image, message, counter);
 
 image.addEventListener("click", function () {
@@ -38,7 +41,16 @@ function addClicks(amount: number) {
 }
 
 function updateCounter() {
-  counter.textContent = "Clicks: " + clickCount;
+  counter.textContent = "Clicks: " + Math.floor(clickCount);
 }
 
+let last = performance.now();
+
 setInterval(() => addClicks(passiveBonuses), 1000);
+
+function tick(now: number) {
+  clickCount += passiveBonuses * (now - last) / 1000;
+  last = now;
+  updateCounter();
+  requestAnimationFrame(tick);
+}
