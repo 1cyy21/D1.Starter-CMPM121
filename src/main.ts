@@ -36,11 +36,11 @@ interface Upgrade extends Pack {
 
 const basePack = { minCash: 1, maxCash: 3 };
 
-const upgrades: Upgrade[] = [
+const packUpgrades: Upgrade[] = [
   {
     name: "Pack 1",
     cost: 20,
-    minCash: -5,
+    minCash: 1,
     maxCash: 10,
     imageUrl: pack1Url,
     purchased: false,
@@ -48,7 +48,7 @@ const upgrades: Upgrade[] = [
   {
     name: "Pack 2",
     cost: 100,
-    minCash: -25,
+    minCash: 5,
     maxCash: 60,
     imageUrl: pack2Url,
     purchased: false,
@@ -56,7 +56,7 @@ const upgrades: Upgrade[] = [
   {
     name: "Pack 3",
     cost: 500,
-    minCash: -100,
+    minCash: 50,
     maxCash: 400,
     imageUrl: pack3Url,
     purchased: false,
@@ -64,60 +64,79 @@ const upgrades: Upgrade[] = [
 ];
 
 let cash: number = 0;
-let passiveBonuses: number = 0;
+// let passiveBonuses: number = 0;
 let currentPack: Pack = basePack;
 
 const counter = document.createElement("h1");
 counter.textContent = "Cash: $0";
 
-const upgrade_1 = document.createElement("button");
-upgrade_1.textContent = "Purchase Pack 1 Upgrade";
+for (const upgrade of packUpgrades) {
+  const button = document.createElement("button");
 
-const upgrade_2 = document.createElement("button");
-upgrade_2.textContent = "Purchase Pack 2 Upgrade";
+  const icon = document.createElement("img");
+  icon.src = upgrade.imageUrl;
+  icon.alt = upgrade.name;
+  icon.width = 32;
+  icon.height = 64;
 
-const upgrade_3 = document.createElement("button");
-upgrade_3.textContent = "Purchase Pack 3 Upgrade";
+  const label = document.createElement("span");
+  button.append(icon, label);
+  button.disabled = true;
 
-app.append(heading, image, message, counter, upgrade_1, upgrade_2, upgrade_3);
+  button.addEventListener("click", () => {
+    if (upgrade.purchased || cash < upgrade.cost) return;
+    cash -= upgrade.cost;
+    upgrade.purchased = true;
+    currentPack = upgrade;
+    image.src = upgrade.imageUrl;
+    image.alt = upgrade.name;
+    updateCounter();
+  });
+
+  upgrade.button = button;
+  app.append(button);
+}
+
+app.append(heading, image, message, counter);
+
+function openPack(pack: Pack): number {
+  return Math.floor(
+    pack.minCash + Math.random() * (pack.maxCash - pack.minCash + 1),
+  );
+}
 
 image.addEventListener("click", function () {
   console.log("Clicked!");
-  addCash(1);
+  addCash(openPack(currentPack));
 });
 
-upgrade_1.addEventListener("click", () => passiveBonuses += 1);
-upgrade_1.disabled = true;
-
-upgrade_1.addEventListener("click", () => passiveBonuses += 1);
-upgrade_2.disabled = true;
-
-upgrade_1.addEventListener("click", () => passiveBonuses += 1);
-upgrade_3.disabled = true;
-
-function toggleUpgrades() {
-  if (cash >= 20) {
-    upgrade_1.disabled = false;
-  }
+function addCash(amount: number) {
+  cash = Math.max(0, cash + amount);
+  updateCounter();
 }
 
-function addCash(amount: number) {
-  cash += amount;
-  updateCounter();
+function money(n: number): string {
+  return (n < 0 ? "-$" : "$") + Math.abs(n);
 }
 
 function updateCounter() {
   counter.textContent = "Cash: $ " + Math.floor(cash);
 }
 
-// Tick calculations
-let last = performance.now();
+function updateUpgradeButtons() {
+  for (const upgrade of packUpgrades) {
+    upgrade.button!.disabled = upgrade.purchased || cash < upgrade.cost;
+    upgrade.button!.querySelector("span")!.textContent = upgrade.purchased
+      ? ` ${upgrade.name} (owned)`
+      : ` ${upgrade.name} (${money(upgrade.cost)}, ${
+        money(upgrade.minCash)
+      } to ${money(upgrade.maxCash)}/pack)`;
+  }
+}
 
-function tick(now: number) {
-  cash += passiveBonuses * (now - last) / 1000;
-  last = now;
-  updateCounter();
-  toggleUpgrades();
+// Tick calculations
+function tick() {
+  updateUpgradeButtons();
   requestAnimationFrame(tick);
 }
 
