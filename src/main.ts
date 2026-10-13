@@ -19,21 +19,30 @@ const message = document.createElement("p");
 message.textContent = "Your project starts here.";
 
 let clickCount: number = 0;
-const passiveBonuses: number = 1;
+let passiveBonuses: number = 0;
 // let upgrades = [];
 
 const counter = document.createElement("h1");
 counter.textContent = "Clicks: 0";
 
 const upgrade_1 = document.createElement("button");
-upgrade_1.textContent = "Purchase Upgrade";
+upgrade_1.textContent = "Purchase Upgrade 1";
 
-app.append(heading, image, message, counter);
+app.append(heading, image, message, counter, upgrade_1);
 
 image.addEventListener("click", function () {
   console.log("Clicked!");
   addClicks(1);
 });
+
+upgrade_1.addEventListener("click", () => passiveBonuses += 1);
+upgrade_1.disabled = true;
+
+function toggleUpgrades() {
+  if (clickCount >= 20) {
+    upgrade_1.disabled = false;
+  }
+}
 
 function addClicks(amount: number) {
   clickCount += amount;
@@ -44,13 +53,15 @@ function updateCounter() {
   counter.textContent = "Clicks: " + Math.floor(clickCount);
 }
 
+//
 let last = performance.now();
-
-setInterval(() => addClicks(passiveBonuses), 1000);
 
 function tick(now: number) {
   clickCount += passiveBonuses * (now - last) / 1000;
   last = now;
   updateCounter();
+  toggleUpgrades();
   requestAnimationFrame(tick);
 }
+
+requestAnimationFrame(tick);
